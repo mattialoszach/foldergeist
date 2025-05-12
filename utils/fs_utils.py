@@ -1,7 +1,7 @@
 import os
 
 # Avoid certain types of files (custom preferences)
-avoid_types = ["__pycache__", "venv"]
+avoid_types = ["__pycache__", "venv", ".git"]
 
 def get_folder_structure(path=None, max_depth=5, curr_depth=0):
     """

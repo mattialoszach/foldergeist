@@ -1,0 +1,33 @@
+import json
+
+def parse_llm_response(output: str):
+    try:
+        json_start = output.find("{")
+        json_end = output.rfind("}")
+        comment = output[:json_start].strip()
+        instruction_str = output[json_start:json_end+1]
+
+        instruction = json.loads(instruction_str)
+        return comment, instruction
+    except Exception as e:
+        return {"error": str(e)}
+    
+if __name__ == "__main__":
+    test_str = f"""
+        This is just a normal string for debugging / testing.
+        This is just a normal string for debugging / testing.
+
+        {{
+        "action": "read_file",
+        "args": {{
+            "path": "src/main.py"
+        }},
+        "termination": false
+        }}
+
+        This is just a test.
+        """
+    
+    comment, instruction = parse_llm_response(test_str)
+    print(comment)
+    print(instruction)
