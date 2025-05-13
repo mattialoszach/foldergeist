@@ -3,7 +3,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from .agent import FoldergeistAgent
 from .prompt_builder import prompt
 
-model = OllamaLLM(model="llama3", streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+model = OllamaLLM(model="llama3")
 
 chain = prompt | model
 

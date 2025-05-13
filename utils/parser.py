@@ -4,11 +4,10 @@ def parse_llm_response(output: str):
     try:
         json_start = output.find("{")
         json_end = output.rfind("}")
-        comment = output[:json_start].strip()
         instruction_str = output[json_start:json_end+1]
 
         instruction = json.loads(instruction_str)
-        return comment, instruction
+        return instruction
     except Exception as e:
         return {"error": str(e)}
     
@@ -28,6 +27,6 @@ if __name__ == "__main__":
         This is just a test.
         """
     
-    comment, instruction = parse_llm_response(test_str)
-    print(comment)
+    instruction = parse_llm_response(test_str)
+    # if 'error' in instruction: print("yes") Checking if action successful
     print(instruction)
