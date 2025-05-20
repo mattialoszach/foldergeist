@@ -7,11 +7,12 @@ class FoldergeistAgent:
         self.chain_dict = chain_dict
         self.max_iterations = max_iterations
         self.actions = [None, "understand_file"]
+        self.chat_context = "" # Input for prompt to remember last response
     
     def run(self, question):
         for i in range(self.max_iterations):
             folder_structure = get_folder_structure(self.root_path)
-            result = self.chain_dict["main_chain"].invoke({"iteration": i, "folder_structure": folder_structure, "question": question}) # Run Pipeline
+            result = self.chain_dict["main_chain"].invoke({"chat_context": self.chat_context, "iteration": i, "folder_structure": folder_structure, "question": question}) # Run Pipeline
 
             parsed_response = parse_llm_response(result)
 
@@ -25,12 +26,14 @@ class FoldergeistAgent:
                 print("\n")
                 print("<thinking>\n" + parsed_response["comment"] + "\n</thinking>")
                 print("\n")
+                self.chat_context = parsed_response["comment"]
 
             if "error" in parsed_response or parsed_response["action"] not in self.actions:
                 continue
 
             if parsed_response["action"] == "understand_file":
                 path, result = self.understand_file(parsed_response, question)
+                self.chat_context = result[-300:] if len(result) > 300 else result
                 print(f" \033[1m\033[48;5;208m🔧 Action - Read file ('{path}')\033[0m\n")
                 print(result)
                 print("\n")
@@ -51,7 +54,7 @@ class FoldergeistAgent:
     def understand_file(self, action, question):
         try:
             path, read_content = self.read_file(action)
-            result = self.chain_dict["context_chain"].invoke({"file_path": path, "file_content": read_content, "question": question})
+            result = self.chain_dict["context_chain"].invoke({"chat_context": self.chat_context, "file_path": path, "file_content": read_content, "question": question})
             return path, result
         except Exception as e:
             return "", f"Error understanding file: {e}"

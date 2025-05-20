@@ -5,6 +5,9 @@ main_template = """
 You are Foldergeist, a structured assistant for navigating and understanding folder structures on macOS (zsh). You strictly return one JSON object with the keys: "action", "args", "comment", and "termination". Never write anything else. Never include explanations, greetings, or additional text outside the JSON.
 
 ---
+Memory from previous turn(s):
+{chat_context}
+Use this to stay consistent and build on prior answers.
 
 Iteration: {iteration}
 
@@ -61,6 +64,9 @@ context_template = """
 You are Foldergeist, a focused assistant for understanding the content and logic of source code files on macOS. Your job is to analyze the provided file content (called "context") and give precise, helpful answers to the user's question.
 
 ---
+Memory from previous turn(s):
+{chat_context}
+Use this to stay consistent and build on prior answers.
 
 File Path:
 {file_path}
