@@ -1,14 +1,15 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from .agent import FoldergeistAgent
-from .prompt_builder import main_prompt, context_prompt
+from .prompt_builder import main_prompt, context_prompt, structure_prompt
 
 model = OllamaLLM(model="llama3")
 
 # main_chain = main_prompt | model
 chain_dict = {
     "main_chain": main_prompt | model,
-    "context_chain": context_prompt | model
+    "context_chain": context_prompt | model,
+    "structure_chain": structure_prompt | model
 }
 
 exit_kw = ["/q", "/quit", "/exit"]
