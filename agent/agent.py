@@ -1,5 +1,6 @@
 from utils.fs_utils import get_folder_structure
 from utils.parser import parse_llm_response
+from utils.spinner_animation import start_spinner_thread, display_spinner
 
 class FoldergeistAgent:
     def __init__(self, root_path, chain_dict, max_iterations=2):
@@ -12,8 +13,21 @@ class FoldergeistAgent:
     def run(self, question):
         for i in range(self.max_iterations):
             folder_structure = get_folder_structure(self.root_path) # Tree like folder structure for context
-            result = self.chain_dict["main_chain"].invoke({"chat_context": self.chat_context, "iteration": i, "folder_structure": folder_structure, "question": question}) # Run Pipeline
 
+            # Thinking Animation Thread
+            stop_event, spinner_thread = start_spinner_thread()
+            try:
+                result = self.chain_dict["main_chain"].invoke({
+                    "chat_context": self.chat_context,
+                    "iteration": i,
+                    "folder_structure": folder_structure,
+                    "question": question
+                })
+            finally:
+                stop_event.set()
+                spinner_thread.join()
+
+            # Parsing LLM Result
             parsed_response = parse_llm_response(result) # Main Action Decision (JSON Format)
 
             ### For Debugging Purposes ###
