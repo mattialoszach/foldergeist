@@ -1,3 +1,4 @@
+import os
 from utils.fs_utils import get_folder_structure
 from utils.parser import parse_llm_response
 from utils.spinner_animation import start_spinner_thread, display_thinking_spinner, display_action_spinner
@@ -35,10 +36,10 @@ class FoldergeistAgent:
 
             # To-Do: Remove Debugging
             ### For Debugging Purposes ###
-            print("###For Debugging###")
-            print(result)
-            print("###\n")
-            print(parsed_response)
+            #print("###For Debugging###")
+            #print(result)
+            #print("###\n")
+            #print(parsed_response)
             ###
 
             # Thinking process from main_chain pipeline
@@ -72,8 +73,10 @@ class FoldergeistAgent:
     # Helper function - get file content
     def read_file(self, action):
         try:
-            with open(action["args"]["path"], "r") as f:
-                return action["args"]["path"], f.read()
+            relative_path = action["args"]["path"]
+            full_path = os.path.join(self.root_path, relative_path)
+            with open(full_path, "r") as f:
+                return relative_path, f.read()
         except Exception as e:
             return "", f"Error reading file: {e}"
     
@@ -81,9 +84,7 @@ class FoldergeistAgent:
     def understand_file(self, action, question):
         try:
             path, read_content = self.read_file(action)
-            ###Debugging
-            print(path, read_content)
-            ###
+
             # Taking action animation & running context_chain pipeline
             stop_event, spinner_thread = start_spinner_thread(display_action_spinner)
             try:
