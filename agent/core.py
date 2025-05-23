@@ -4,6 +4,7 @@ from utils.intro_graphic import intro_ascii
 from .agent import FoldergeistAgent
 from .prompt_builder import main_prompt, context_prompt, structure_prompt
 
+# TO-DO: Make config file setup with model preferences
 model = OllamaLLM(model="llama3")
 
 # main_chain = main_prompt | model

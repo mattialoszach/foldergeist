@@ -14,7 +14,7 @@ class FoldergeistAgent:
         for i in range(self.max_iterations):
             folder_structure = get_folder_structure(self.root_path) # Tree like folder structure for context
 
-            # Thinking Animation Thread
+            # Thinking Animation Thread & running main_chain pipeline
             stop_event, spinner_thread = start_spinner_thread(display_thinking_spinner)
             try:
                 result = self.chain_dict["main_chain"].invoke({
@@ -40,7 +40,7 @@ class FoldergeistAgent:
             if parsed_response["comment"]:
                 print("\n")
                 print("<thinking>\n" + parsed_response["comment"] + "\n</thinking>")
-                print("\n")
+                print("")
                 self.chat_context = parsed_response["comment"]
 
             if "error" in parsed_response or parsed_response["action"] not in self.actions:
@@ -61,8 +61,6 @@ class FoldergeistAgent:
             if parsed_response["termination"] == True:
                 break
 
-            
-
     def read_file(self, action):
         try:
             with open(action["args"]["path"], "r") as f:
@@ -74,14 +72,40 @@ class FoldergeistAgent:
     def understand_file(self, action, question):
         try:
             path, read_content = self.read_file(action)
-            result = self.chain_dict["context_chain"].invoke({"chat_context": self.chat_context, "file_path": path, "file_content": read_content, "question": question})
+            
+            # Taking action animation & running context_chain pipeline
+            stop_event, spinner_thread = start_spinner_thread(display_action_spinner)
+            try:
+                result = self.chain_dict["context_chain"].invoke({
+                    "chat_context": self.chat_context,
+                    "file_path": path, 
+                    "file_content": read_content, 
+                    "question": question
+                })
+            finally:
+                stop_event.set()
+                spinner_thread.join()
+
+            #result = self.chain_dict["context_chain"].invoke({"chat_context": self.chat_context, "file_path": path, "file_content": read_content, "question": question})
             return path, result
         except Exception as e:
             return "", f"Error understanding file: {e}"
 
     def understand_structure(self, folder_structure, question):
         try:
-            result = self.chain_dict["structure_chain"].invoke({"chat_context": self.chat_context, "folder_structure": folder_structure, "question": question})
+            # Taking action animation & running structure_chain pipeline
+            stop_event, spinner_thread = start_spinner_thread(display_action_spinner)
+            try:
+                result = self.chain_dict["structure_chain"].invoke({
+                    "chat_context": self.chat_context,
+                    "folder_structure": folder_structure, 
+                    "question": question
+                })
+            finally:
+                stop_event.set()
+                spinner_thread.join()
+            
+            #result = self.chain_dict["structure_chain"].invoke({"chat_context": self.chat_context, "folder_structure": folder_structure, "question": question})
             return result
         except Exception as e:
             return "", f"Error understanding structure: {e}"
