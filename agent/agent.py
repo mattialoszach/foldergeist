@@ -8,7 +8,7 @@ class FoldergeistAgent:
         self.root_path = root_path
         self.chain_dict = chain_dict
         self.max_iterations = max_iterations
-        self.actions = [None, "understand_file", "understand_structure"] # Possible actions
+        self.actions = [None, "understand_file", "understand_structure", "rename_path"] # Possible actions
         self.chat_context = "" # Input for prompt to remember last response
     
     # Question-Answer Run with potential action(s)
@@ -36,10 +36,10 @@ class FoldergeistAgent:
 
             # To-Do: Remove Debugging
             ### For Debugging Purposes ###
-            #print("###For Debugging###")
-            #print(result)
-            #print("###\n")
-            #print(parsed_response)
+            print("###For Debugging###")
+            print(result)
+            print("###\n")
+            print(parsed_response)
             ###
 
             # Thinking process from main_chain pipeline
@@ -63,6 +63,11 @@ class FoldergeistAgent:
             elif parsed_response["action"] == "understand_structure":
                 result = self.understand_structure(folder_structure, question)
                 print(result)
+                print("")
+            # Run action 3
+            elif parsed_response["action"] == "rename_path":
+                print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Rename file/folder ('{parsed_response["args"]["src"]}') \033[0m\n")
+                self.rename_path(parsed_response)
                 print("")
             # elif ... further actions
 
@@ -120,3 +125,27 @@ class FoldergeistAgent:
             return result
         except Exception as e:
             return "", f"Error understanding structure: {e}"
+    
+    # Action 3: Renaming file/folder (using rename_chain)
+    def rename_path(self, action):
+        try:
+            old_name = os.path.join(self.root_path, action["args"]["src"])
+            new_name = os.path.join(self.root_path, action["args"]["dest"])
+                
+            if not os.path.exists(old_name):
+                raise FileNotFoundError(f"Invalid path!")
+
+            print(f"Potential change: {old_name} → {new_name}")
+
+            confirm_action = ""
+            while confirm_action not in ["y", "n"]:
+                 confirm_action = input(f"Do you want to confirm this action? (y/n): ").lower()
+
+            if confirm_action == "y":
+                os.rename(old_name, new_name)
+                print(f"✅ Success: Renamed {old_name} → {new_name}")
+            else:
+                print("❌ Aborting action...")
+
+        except Exception as e:
+            print(f"❗ Error renaming structure: {e}")

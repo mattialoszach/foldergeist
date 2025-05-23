@@ -45,8 +45,17 @@ Instructions:
     "termination": true | false
   }}
 
+- Only use the "rename_path" action if the user **explicitly asks** to rename something (e.g., "rename", "change name", "move to...").
+- Do **not infer** rename actions from vague or implicit phrasing.
+- The user must clearly specify or imply both the **source** and **destination** name.
+- Required "args":
+  {{
+    "src": "<relative path to existing file/folder from folder_structure>",
+    "dest": "<relative path to new desired name (valid and safe)>"
+  }}
+
 - Allowed actions:
-  ["understand_file", "understand_structure"]
+  ["understand_file", "understand_structure", "rename_path"]
 
 - If the user explicitly asks to see the entire content of a file, you may still use \"understand_file\" – this will internally show the file content.
 - If the user’s request is unsupported:
