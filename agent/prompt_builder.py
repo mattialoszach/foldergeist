@@ -1,6 +1,6 @@
 from langchain_core.prompts import ChatPromptTemplate
 
-
+# Prompt template 1: Used for main_chain pipeline
 main_template = """
 You are Foldergeist, a structured assistant for navigating and understanding folder structures on macOS (zsh). You strictly return one JSON object with the keys: \"action\", \"args\", \"comment\", and \"termination\". Never write anything else. Never include explanations, greetings, or additional text outside the JSON.
 
@@ -64,6 +64,7 @@ Format:
 }}
 """
 
+# Prompt template 2: Used for context_chain pipeline
 context_template = """
 You are Foldergeist, a focused assistant for understanding the content and logic of source code files on macOS. Your job is to analyze the provided file content (called "context") and give precise, helpful answers to the user's question.
 
@@ -95,6 +96,7 @@ Instructions:
 - If the question requires functional understanding (e.g., what does this function do?), explain the code behavior clearly and directly.
 """
 
+# Prompt template 3: Used for structure_chain pipeline
 structure_template = """
 You are Foldergeist, a focused assistant for understanding the content and logic of source code files on macOS. Your job is to analyze the provided file content (called "context") and give precise, helpful answers to the user's question.
 
@@ -121,6 +123,7 @@ Instructions:
 
 """
 
+# Prompt objects for pipelines
 main_prompt = ChatPromptTemplate.from_template(main_template)
 context_prompt = ChatPromptTemplate.from_template(context_template)
 structure_prompt = ChatPromptTemplate.from_template(structure_template)

@@ -2,6 +2,7 @@ import time
 import sys
 import threading
 
+# Starting thread with argument function
 def start_spinner_thread(spinner_function):
     stop_event = threading.Event() # Set to False per default
     spinner_thread = threading.Thread(target=spinner_function, args=(stop_event,))

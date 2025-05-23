@@ -7,18 +7,20 @@ from .prompt_builder import main_prompt, context_prompt, structure_prompt
 # TO-DO: Make config file setup with model preferences
 model = OllamaLLM(model="llama3")
 
-# main_chain = main_prompt | model
+# Dict with all possible pipelines
 chain_dict = {
     "main_chain": main_prompt | model,
     "context_chain": context_prompt | model,
     "structure_chain": structure_prompt | model
 }
 
-exit_kw = ["/q", "/quit", "/exit"]
+exit_kw = ["/q", "/quit", "/exit"] # Keywoards for exit
 
+# Chat Interface
 def chat():
     intro_ascii()
 
+    # To-Do: Check if valid path and display path
     root_path = input("Please enter your Folder / Path (if you press 'ENTER' I will continue with using your current folder): ")
     agent = FoldergeistAgent(root_path, chain_dict)
 
