@@ -1,6 +1,6 @@
 from utils.fs_utils import get_folder_structure
 from utils.parser import parse_llm_response
-from utils.spinner_animation import start_spinner_thread, display_spinner
+from utils.spinner_animation import start_spinner_thread, display_thinking_spinner, display_action_spinner
 
 class FoldergeistAgent:
     def __init__(self, root_path, chain_dict, max_iterations=2):
@@ -15,7 +15,7 @@ class FoldergeistAgent:
             folder_structure = get_folder_structure(self.root_path) # Tree like folder structure for context
 
             # Thinking Animation Thread
-            stop_event, spinner_thread = start_spinner_thread()
+            stop_event, spinner_thread = start_spinner_thread(display_thinking_spinner)
             try:
                 result = self.chain_dict["main_chain"].invoke({
                     "chat_context": self.chat_context,
@@ -31,10 +31,10 @@ class FoldergeistAgent:
             parsed_response = parse_llm_response(result) # Main Action Decision (JSON Format)
 
             ### For Debugging Purposes ###
-            print("###For Debugging###")
-            print(result)
-            print("###\n")
-            print(parsed_response)
+            #print("###For Debugging###")
+            #print(result)
+            #print("###\n")
+            #print(parsed_response)
             ###
 
             if parsed_response["comment"]:
@@ -49,13 +49,13 @@ class FoldergeistAgent:
             if parsed_response["action"] == "understand_file":
                 path, result = self.understand_file(parsed_response, question)
                 self.chat_context = result[-300:] if len(result) > 300 else result
-                print(f"\033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Read file ('{path}') \033[0m\n")
+                print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Read file ('{path}') \033[0m\n")
                 print(result)
-                print("\n")
+                print("")
             elif parsed_response["action"] == "understand_structure":
                 result = self.understand_structure(folder_structure, question)
                 print(result)
-                print("\n")
+                print("")
             # elif ... further actions
 
             if parsed_response["termination"] == True:

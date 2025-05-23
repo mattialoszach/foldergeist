@@ -1,5 +1,6 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from utils.intro_graphic import intro_ascii
 from .agent import FoldergeistAgent
 from .prompt_builder import main_prompt, context_prompt, structure_prompt
 
@@ -15,10 +16,7 @@ chain_dict = {
 exit_kw = ["/q", "/quit", "/exit"]
 
 def chat():
-    print("\033[1;36m==============================\033[0m")
-    print("\033[1;32m Foldergeist\033[0m")
-    print("\033[90m AI Agent for Folder Management\033[0m")
-    print("\033[1;36m==============================\033[0m")
+    intro_ascii()
 
     root_path = input("Please enter your Folder / Path (if you press 'ENTER' I will continue with using your current folder): ")
     agent = FoldergeistAgent(root_path, chain_dict)
