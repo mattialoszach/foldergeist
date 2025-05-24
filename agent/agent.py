@@ -143,7 +143,7 @@ class FoldergeistAgent:
             if not os.path.exists(old_name):
                 raise FileNotFoundError(f"Invalid path!")
 
-            print(f"Potential change: {old_name} → {new_name}")
+            print(f"Potential change: \033[38;5;208m\033[1m{old_name} → {new_name}\033[0m")
 
             confirm_action = ""
             while confirm_action not in ["y", "n"]:
@@ -151,12 +151,13 @@ class FoldergeistAgent:
 
             if confirm_action == "y":
                 os.rename(old_name, new_name)
-                print(f"✅ Success: Renamed {old_name} → {new_name}")
+                print(f"✅ Success: Renamed \033[38;5;208m\033[1m{old_name} → {new_name}\033[0m")
             else:
                 print("❌ Aborting action...")
 
         except Exception as e:
             print(f"❗ Error renaming structure: {e}")
+            print("Please try again!")
 
     def change_path(self, action):
         try:
@@ -167,7 +168,7 @@ class FoldergeistAgent:
             if not os.path.exists(old_path):
                 raise FileNotFoundError(f"Invalid path!")
 
-            print(f"Potential change: {old_path} → {new_path}")
+            print(f"Potential change: \033[38;5;208m\033[1m{old_path} → {new_path}\033[0m")
 
             confirm_action = ""
             while confirm_action not in ["y", "n"]:
@@ -175,9 +176,10 @@ class FoldergeistAgent:
 
             if confirm_action == "y":
                 os.rename(old_path, new_path)
-                print(f"✅ Success: Changed path {old_path} → {new_path}")
+                print(f"✅ Success: Changed path \033[38;5;208m\033[1m{old_path} → {new_path}\033[0m")
             else:
                 print("❌ Aborting action...")
 
         except Exception as e:
             print(f"❗ Error renaming structure: {e}")
+            print("Please try again!")
