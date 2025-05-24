@@ -1,3 +1,4 @@
+import os
 from langchain_ollama.llms import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from utils.intro_graphic import intro_ascii
@@ -20,8 +21,30 @@ exit_kw = ["/q", "/quit", "/exit"] # Keywoards for exit
 def chat():
     intro_ascii()
 
-    # To-Do: Check if valid path and display path
-    root_path = input("Please enter your Folder / Path (if you \033[38;5;208mpress 'ENTER'\033[0m I will continue with using your \033[38;5;208mcurrent folder\033[0m): ")
+    # Check if valid path and display path
+    root_path = ""
+
+    for attempt in range(2):
+        root_path = input("Please enter your Folder / Path (if you \033[38;5;208mpress 'ENTER'\033[0m I will continue with using your \033[38;5;208mcurrent folder\033[0m): ").strip()
+
+        if root_path == "":
+            print("Using current working directory...")
+            root_path = os.getcwd()
+
+        if os.path.exists(root_path):
+            print(f"\033[38;5;208m↪ Working with root path '\033[1m{root_path}\033[0m'")
+        else:
+            print(f"❌ The path '{root_path}' wasn't found.")
+
+            if attempt == 0:
+                try_again = input("Do you want to try again? (y/n): ").strip().lower()
+                if try_again != "y":
+                    print("👋 Exiting...")
+                    return None
+            else:
+                print("🚫 Second attempt failed. Exiting...")
+                return None
+
     agent = FoldergeistAgent(root_path, chain_dict)
 
     print("\033[90mType your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
