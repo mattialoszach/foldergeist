@@ -11,7 +11,7 @@ def create_config():
         os.makedirs(CONFIG_DIR) # Create config directory, if non existing yet
     
     print(
-        "\nWhen using Foldergeist, your agent relies on a base model that must be selected. "
+        "\nWhen using \033[38;5;208mFoldergeist\033[0m, your agent relies on a base model that must be selected. "
         "Your model runs locally via the Ollama service. Make sure Ollama is installed correctly "
         "(for more information visit 'https://ollama.com')\n"
         "Once you've selected a base model, it will be saved in a configuration file located at "
@@ -26,7 +26,7 @@ def create_config():
     with open(CONFIG_FILE, "w") as f:
         json.dump(config_data, f, indent=4)
     
-    print(f"Config file created at {CONFIG_FILE}")
+    print(f"\n↪ Config file created at {CONFIG_FILE}")
     
 
 def load_config():
@@ -44,7 +44,7 @@ def setup():
     if model_name == None: # Config file not found
         create_config()
         model_name = load_config() # Config data can now be accessed
-    info_model = f"\033[38;5;208m↪ Using model: {model_name}\033[0m"
+    info_model = f"\033[38;5;208m↪ Using model: \033[1m{model_name}\033[0m"
     return info_model, model_name
 
 if __name__ == "__main__":

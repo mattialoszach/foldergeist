@@ -32,11 +32,12 @@ def chat():
         if root_path == "":
             print("Using current working directory...")
             root_path = os.getcwd()
-            print(f"\033[38;5;208m↪ Working with root path '\033[1m{root_path}\033[0m'")
+            print(f"\033[38;5;208m↪ Working with root path '\033[1m{root_path}'\033[0m")
             break
 
         if os.path.exists(root_path):
-            print(f"\033[38;5;208m↪ Working with root path '\033[1m{root_path}\033[0m'")
+            print(f"\033[38;5;208m↪ Working with root path '\033[1m{root_path}'\033[0m")
+            break
         else:
             print(f"❌ The path '{root_path}' wasn't found.")
 

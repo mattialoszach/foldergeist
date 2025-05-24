@@ -8,7 +8,7 @@ class FoldergeistAgent:
         self.root_path = root_path
         self.chain_dict = chain_dict
         self.max_iterations = max_iterations
-        self.actions = [None, "understand_file", "understand_structure", "rename_path"] # Possible actions
+        self.actions = [None, "understand_file", "understand_structure", "rename_path", "change_path"] # Possible actions
         self.chat_context = "" # Input for prompt to remember last response
     
     # Question-Answer Run with potential action(s)
@@ -69,6 +69,12 @@ class FoldergeistAgent:
             elif parsed_response["action"] == "rename_path":
                 print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Rename file/folder ('{parsed_response["args"]["src"]}') \033[0m\n")
                 self.rename_path(parsed_response)
+                self.chat_context = question[-300:] if len(question) > 300 else question # Chat history (last question)
+                print("")
+            # Run action 4
+            elif parsed_response["action"] == "change_path":
+                print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Change path ('{parsed_response["args"]["src"]}') \033[0m\n")
+                self.change_path(parsed_response)
                 self.chat_context = question[-300:] if len(question) > 300 else question # Chat history (last question)
                 print("")
             # elif ... further actions
@@ -146,6 +152,30 @@ class FoldergeistAgent:
             if confirm_action == "y":
                 os.rename(old_name, new_name)
                 print(f"✅ Success: Renamed {old_name} → {new_name}")
+            else:
+                print("❌ Aborting action...")
+
+        except Exception as e:
+            print(f"❗ Error renaming structure: {e}")
+
+    def change_path(self, action):
+        try:
+            old_path = os.path.join(self.root_path, action["args"]["src"])
+            dest_folder = os.path.join(self.root_path, action["args"]["dest"])
+            new_path = os.path.join(dest_folder, os.path.basename(old_path))
+                
+            if not os.path.exists(old_path):
+                raise FileNotFoundError(f"Invalid path!")
+
+            print(f"Potential change: {old_path} → {new_path}")
+
+            confirm_action = ""
+            while confirm_action not in ["y", "n"]:
+                 confirm_action = input(f"Do you want to confirm this action? (y/n): ").lower()
+
+            if confirm_action == "y":
+                os.rename(old_path, new_path)
+                print(f"✅ Success: Changed path {old_path} → {new_path}")
             else:
                 print("❌ Aborting action...")
 

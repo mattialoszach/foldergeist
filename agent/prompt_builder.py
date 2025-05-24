@@ -54,6 +54,15 @@ Instructions:
     "dest": "<relative path to new desired name (valid and safe)>"
   }}
 
+- Only use the "change_path" action if the user **explicitly asks** to move a file or folder to another location (e.g., "move", "relocate", "move to another folder", etc.).
+- Do **not infer** change_path actions without a clear and intentional request.
+- The user must clearly specify or imply both the **source path** and the **target location**.
+- Required "args":
+  {{
+    "src": "<relative path to the existing file/folder>",
+    "dest": "<new relative path to target location>"
+  }}
+
 - Allowed actions:
   ["understand_file", "understand_structure", "rename_path"]
 
