@@ -2,11 +2,13 @@ import os
 from langchain_ollama.llms import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from utils.intro_graphic import intro_ascii
+from config.config import setup
 from .agent import FoldergeistAgent
 from .prompt_builder import main_prompt, context_prompt, structure_prompt
 
-# TO-DO: Make config file setup with model preferences
-model = OllamaLLM(model="llama3")
+# Make config file setup with model preferences
+info_model, model_name = setup()
+model = OllamaLLM(model=model_name)
 
 # Dict with all possible pipelines
 chain_dict = {
@@ -46,6 +48,8 @@ def chat():
             else:
                 print("🚫 Second attempt failed. Exiting...")
                 return None
+
+    print(info_model) # Information about model in use
 
     agent = FoldergeistAgent(root_path, chain_dict)
 

@@ -55,7 +55,7 @@ class FoldergeistAgent:
             # Run action 1
             if parsed_response["action"] == "understand_file":
                 path, result = self.understand_file(parsed_response, question)
-                self.chat_context = result[-300:] if len(result) > 300 else result # Chat history (last response)
+                self.chat_context = result[-300:] if len(result) > 300 else result # Chat history (last response) -> To-Do: also add user question for more context
                 print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Read file ('{path}') \033[0m\n")
                 print(result)
                 print("")
