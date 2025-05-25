@@ -147,7 +147,7 @@ class FoldergeistAgent:
 
             confirm_action = ""
             while confirm_action not in ["y", "n"]:
-                 confirm_action = input(f"Do you want to confirm this action? (y/n): ").lower()
+                 confirm_action = input(f"⚠️ Do you want to confirm this action? (y/n): ").lower()
 
             if confirm_action == "y":
                 os.rename(old_name, new_name)
@@ -172,7 +172,7 @@ class FoldergeistAgent:
 
             confirm_action = ""
             while confirm_action not in ["y", "n"]:
-                 confirm_action = input(f"Do you want to confirm this action? (y/n): ").lower()
+                 confirm_action = input(f"⚠️ Do you want to confirm this action? (y/n): ").lower()
 
             if confirm_action == "y":
                 os.rename(old_path, new_path)
