@@ -45,23 +45,25 @@ Instructions:
     "termination": true | false
   }}
 
-- Only use the "rename_path" action if the user **explicitly asks** to rename something (e.g., "rename", "change name", "move to...").
-- Do **not infer** rename actions from vague or implicit phrasing.
-- The user must clearly specify or imply both the **source** and **destination** name.
+- Only use the "rename_path" action if the user explicitly asks to rename a file or folder — e.g., "rename", "change name", or "rename to XYZ".
+- Do **not** use this action if the user says or implies anything related to moving or relocating a file/folder — e.g., "move", "move to folder", "transfer", "put into", etc.
+- This action is only for changing the name **within the same folder** — never to move across folders.
+- Never interpret a folder destination (`dest`) as a sign to rename — rename is only allowed if `dest` clearly includes a **different filename**, not a folder path.
 - Required "args":
   {{
     "src": "<relative path to existing file/folder from folder_structure>",
-    "dest": "<relative path to new desired name (valid and safe)>"
+    "dest": "<relative path to new desired name (must change filename)>"
   }}
 
-- Only use the "change_path" action if the user **explicitly asks** to move a file or folder to another location (e.g., "move", "relocate", "move to another folder", etc.).
-- Do **not infer** change_path actions without a clear and intentional request.
-- The user must clearly specify or imply both the **source path** and the **target location**.
-- The "dest" argument must only be the **target folder path** — never include the filename again.
+
+- Use "change_path" only for move or relocate requests — including phrasing like:
+  "move file to folder", "relocate X into Y", "transfer into subfolder", "put it in ...", "organize into", etc.
+- This action is always used when the filename stays the same but its location changes.
+- Never confuse this with renaming or copying.
 - Required "args":
   {{
     "src": "<relative path to the existing file/folder>",
-    "dest": "<new relative path to target location>"
+    "dest": "<relative path to target folder only (no filename)>"
   }}
 
 - Only use the “delete_path” action if the user explicitly asks to delete or remove something (e.g., “delete”, “remove”, “erase”, “permanently delete”).
@@ -72,8 +74,22 @@ Instructions:
     "path": "<relative path to existing file or folder from folder_structure>"
   }}
 
+- Only use the "copy_path" action if the user explicitly asks to copy, duplicate, or save a copy of a file or folder (e.g., "copy", "duplicate", "make a copy", "save to ...").
+- Do not use rename_path or change_path for such requests.
+- Never use "understand_file" if the user says: "copy", "duplicate", "clone", "save a copy", or similar phrasing.
+- Such words always require the action: "copy_path".
+- Required "args":
+  {{
+    "src": "<relative path to existing file/folder from folder_structure>",
+    "dest": "<relative path to destination folder where the copy should be placed>"
+  }}
+
+- If the user says "undo", "revert", or "move it back", you may only act if the last action was a successful "change_path", "rename_path", or "copy_path".
+- Use the previous chat_context to extract the last known `src` and `dest`, and reverse them appropriately.
+- Never invent paths. If no clear origin is known from previous turns, return.
+
 - Allowed actions:
-  ["understand_file", "understand_structure", "rename_path", "delete_path"]
+  ["understand_file", "understand_structure", "rename_path", "change_path", "delete_path", "copy_path"]
 
 - If the user explicitly asks to see the entire content of a file, you may still use \"understand_file\" – this will internally show the file content.
 - If the user’s request is unsupported:

@@ -10,7 +10,7 @@ class FoldergeistAgent:
         self.root_path = root_path
         self.chain_dict = chain_dict
         self.max_iterations = max_iterations
-        self.actions = [None, "understand_file", "understand_structure", "rename_path", "change_path", "delete_path"] # Possible actions
+        self.actions = [None, "understand_file", "understand_structure", "rename_path", "change_path", "delete_path", "copy_path"] # Possible actions
         self.chat_context = [] # Input for prompt to remember last response
         self.chat_context_length = 2 # How many past Q&A pairs should be saved
         self.chat_context_max_chars = 1500 # How many chars get saved per question/response regarding Q&A pairs
@@ -51,7 +51,7 @@ class FoldergeistAgent:
             ###
 
             # Thinking process from main_chain pipeline
-            if parsed_response["comment"]:
+            if parsed_response.get("comment"):
                 print("\033[90m<thinking>\n" + parsed_response["comment"] + "\n</thinking>\033[0m")
                 print("") # Correct spacing
 
@@ -100,8 +100,17 @@ class FoldergeistAgent:
                 else:
                     self.chat_context.append({"Question": question, "Response": f"Could not delete path ('{parsed_response["args"]["path"]}')"})
                 print("")
+            # Run action 6
+            elif parsed_response["action"] == "copy_path":
+                print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Copy path ('{parsed_response["args"]["src"]}') \033[0m\n")
+                change = self.copy_path(parsed_response)
+                if change:
+                    self.chat_context.append({"Question": question, "Response": f"Action taken, copied path ('{parsed_response["args"]["src"]}')"}) # Chat history
+                else:
+                    self.chat_context.append({"Question": question, "Response": f"Could not copy path ('{parsed_response["args"]["src"]}')"})
+                print("")
 
-            # elif ... further actions (copy_path, delete_path)
+            # elif ... further actions
 
             # Check for termination condition
             if parsed_response["termination"] == True:
@@ -242,5 +251,38 @@ class FoldergeistAgent:
 
         except Exception as e:
             print(f"❗ Error deleting path: {e}")
+            print("Please try again!")
+            return False
+        
+    # Action 6: Copy path
+    def copy_path(self, action):
+        try:
+            src_path = os.path.join(self.root_path, action["args"]["src"])
+            dest_folder = os.path.join(self.root_path, action["args"]["dest"])
+            dest_path = os.path.join(dest_folder, os.path.basename(src_path))
+
+            if not os.path.exists(src_path):
+                raise FileNotFoundError("Invalid source path!")
+
+            print(f"Potential copy: \033[38;5;39m\033[1m{src_path} → {dest_path}\033[0m")
+
+            confirm_action = ""
+            while confirm_action not in ["y", "n"]:
+                confirm_action = input(f"⚠️  Do you want to confirm this copy action? (y/n): ").lower()
+
+            if confirm_action == "y":
+                if os.path.isdir(src_path):
+                    shutil.copytree(src_path, dest_path)
+                else:
+                    os.makedirs(dest_folder, exist_ok=True)
+                    shutil.copy2(src_path, dest_path)
+                print(f"\n✅  Success: Copied \033[38;5;39m\033[1m{src_path} → {dest_path}\033[0m")
+                return True
+            else:
+                print("\n❌  Aborting copy...")
+                return False
+
+        except Exception as e:
+            print(f"❗ Error copying path: {e}")
             print("Please try again!")
             return False
