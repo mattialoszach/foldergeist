@@ -1,4 +1,5 @@
 import os
+import shutil
 from utils.fs_utils import get_folder_structure
 from utils.parser import parse_llm_response
 from utils.spinner_animation import start_spinner_thread, display_thinking_spinner, display_action_spinner
@@ -9,7 +10,7 @@ class FoldergeistAgent:
         self.root_path = root_path
         self.chain_dict = chain_dict
         self.max_iterations = max_iterations
-        self.actions = [None, "understand_file", "understand_structure", "rename_path", "change_path"] # Possible actions
+        self.actions = [None, "understand_file", "understand_structure", "rename_path", "change_path", "delete_path"] # Possible actions
         self.chat_context = [] # Input for prompt to remember last response
         self.chat_context_length = 2 # How many past Q&A pairs should be saved
         self.chat_context_max_chars = 1500 # How many chars get saved per question/response regarding Q&A pairs
@@ -90,6 +91,16 @@ class FoldergeistAgent:
                 else:
                     self.chat_context.append({"Question": question, "Response": f"Could not change path ('{parsed_response["args"]["src"]}')"})
                 print("")
+            # Run action 5
+            elif parsed_response["action"] == "delete_path":
+                print(f" \033[1;48;5;15m ⚙️  \033[0m\033[1;48;5;208m Action - Delete path ('{parsed_response["args"]["path"]}') \033[0m\n")
+                change = self.delete_path(parsed_response)
+                if change:
+                    self.chat_context.append({"Question": question, "Response": f"Action taken, delete path ('{parsed_response["args"]["path"]}')"}) # Chat history
+                else:
+                    self.chat_context.append({"Question": question, "Response": f"Could not delete path ('{parsed_response["args"]["path"]}')"})
+                print("")
+
             # elif ... further actions (copy_path, delete_path)
 
             # Check for termination condition
@@ -147,7 +158,7 @@ class FoldergeistAgent:
         except Exception as e:
             return "", f"Error understanding structure: {e}"
     
-    # Action 3: Renaming file/folder (using rename_chain)
+    # Action 3: Renaming file/folder
     def rename_path(self, action):
         try:
             old_name = os.path.join(self.root_path, action["args"]["src"])
@@ -160,14 +171,14 @@ class FoldergeistAgent:
 
             confirm_action = ""
             while confirm_action not in ["y", "n"]:
-                 confirm_action = input(f"⚠️ Do you want to confirm this action? (y/n): ").lower()
+                 confirm_action = input(f"⚠️  Do you want to confirm this action? (y/n): ").lower()
 
             if confirm_action == "y":
                 os.rename(old_name, new_name)
-                print(f"✅ Success: Renamed \033[38;5;208m\033[1m{old_name} → {new_name}\033[0m")
+                print(f"\n✅  Success: Renamed \033[38;5;208m\033[1m{old_name} → {new_name}\033[0m")
                 return True
             else:
-                print("❌ Aborting action...")
+                print("\n❌  Aborting action...")
                 return False
 
         except Exception as e:
@@ -175,6 +186,7 @@ class FoldergeistAgent:
             print("Please try again!")
             return False
 
+    # Action 4: Change path
     def change_path(self, action):
         try:
             old_path = os.path.join(self.root_path, action["args"]["src"])
@@ -188,17 +200,47 @@ class FoldergeistAgent:
 
             confirm_action = ""
             while confirm_action not in ["y", "n"]:
-                 confirm_action = input(f"⚠️ Do you want to confirm this action? (y/n): ").lower()
+                 confirm_action = input(f"⚠️  Do you want to confirm this action? (y/n): ").lower()
 
             if confirm_action == "y":
                 os.rename(old_path, new_path)
-                print(f"✅ Success: Changed path \033[38;5;208m\033[1m{old_path} → {new_path}\033[0m")
+                print(f"\n✅  Success: Changed path \033[38;5;208m\033[1m{old_path} → {new_path}\033[0m")
                 return True
             else:
-                print("❌ Aborting action...")
+                print("\n❌  Aborting action...")
                 return False
 
         except Exception as e:
             print(f"❗ Error renaming structure: {e}")
+            print("Please try again!")
+            return False
+        
+    # Action 5: Delete path
+    def delete_path(self, action):
+        try:
+            target_path = os.path.join(self.root_path, action["args"]["path"])
+
+            if not os.path.exists(target_path):
+                raise FileNotFoundError("Invalid path!")
+
+            print(f"Potential delete: \033[38;5;196m\033[1m{target_path}\033[0m")
+
+            confirm_action = ""
+            while confirm_action not in ["y", "n"]:
+                confirm_action = input(f"⚠️  Do you want to permanently delete this path? (y/n): ").lower()
+
+            if confirm_action == "y":
+                if os.path.isdir(target_path):
+                    shutil.rmtree(target_path)
+                else:
+                    os.remove(target_path)
+                print(f"\n🗑️  Deleted: \033[38;5;196m\033[1m{target_path}\033[0m")
+                return True
+            else:
+                print("\n❌  Aborting deletion...")
+                return False
+
+        except Exception as e:
+            print(f"❗ Error deleting path: {e}")
             print("Please try again!")
             return False

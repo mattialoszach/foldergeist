@@ -64,8 +64,16 @@ Instructions:
     "dest": "<new relative path to target location>"
   }}
 
+- Only use the “delete_path” action if the user explicitly asks to delete or remove something (e.g., “delete”, “remove”, “erase”, “permanently delete”).
+- Do not infer delete actions from vague or ambiguous phrasing.
+- The user must clearly specify or strongly imply the path to the item that should be deleted.
+- Required "args":
+  {{
+    "path": "<relative path to existing file or folder from folder_structure>"
+  }}
+
 - Allowed actions:
-  ["understand_file", "understand_structure", "rename_path"]
+  ["understand_file", "understand_structure", "rename_path", "delete_path"]
 
 - If the user explicitly asks to see the entire content of a file, you may still use \"understand_file\" – this will internally show the file content.
 - If the user’s request is unsupported:
